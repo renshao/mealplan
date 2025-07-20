@@ -9,16 +9,21 @@
   const mealLabels = ['Breakfast', 'Lunch', 'Dinner'];
   
   let mealPlans = {};
+  let loaded = false;
   
   onMount(async () => {
     try {
       const plans = await getMealPlans();
+      const newMealPlans = {};
       plans.forEach(plan => {
         const key = `${plan.dayOfWeek}-${plan.mealType}`;
-        mealPlans[key] = plan.meal.name;
+        newMealPlans[key] = plan.meal.name;
       });
+      mealPlans = newMealPlans;
+      loaded = true;
     } catch (error) {
       console.error('Error loading meal plans:', error);
+      loaded = true;
     }
   });
   
@@ -44,11 +49,13 @@
       <div class="grid-row-header">{mealLabels[mealIndex]}</div>
       {#each days as day}
         <div class="grid-cell">
-          <MealInput 
-            dayOfWeek={day} 
-            mealType={meal}
-            initialValue={getMealValue(day, meal)}
-          />
+          {#if loaded}
+            <MealInput 
+              dayOfWeek={day} 
+              mealType={meal}
+              initialValue={getMealValue(day, meal)}
+            />
+          {/if}
         </div>
       {/each}
     {/each}
